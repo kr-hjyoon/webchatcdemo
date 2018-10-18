@@ -65,9 +65,11 @@ function sendMessage(){
 
     if(messageContent && stompClient) {
         var chatMessage = { // 메세지 프로토콜 정의
+            type: 'CHAT',
             sender: username,
             content: messageInput.value,
-            type: 'CHAT'
+            sentAt : ''  // 서버에서 셋업
+
         };
         stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(chatMessage));
         messageInput.value = '';
@@ -86,13 +88,14 @@ function onMessageReceived(payload) {
 
     if(message.type === 'JOIN') {
         messageElement.classList.add('event-message');
-        message.content = message.sender + '님이 대화에 들어오셨습니다.';
+        message.content = message.sender + '님이 대화에 들어오셨습니다. ' + message.sentAt ;
     } else if (message.type === 'LEAVE') {
         messageElement.classList.add('event-message');
-        message.content = message.sender + '님이 대화를 나가셨습니다.';
+        message.content = message.sender + '님이 대화를 나가셨습니다.' + message.sentAt ;
     } else if (message.type == 'CHAT' ) {
         messageElement.classList.add('chat-message');
 
+        // 프로필 세팅
         var avatarElement = document.createElement('i');
         var avatarText = document.createTextNode(message.sender[0]);
         avatarElement.appendChild(avatarText);
@@ -101,9 +104,10 @@ function onMessageReceived(payload) {
         messageElement.appendChild(avatarElement);
 
         var usernameElement = document.createElement('span');
-        var usernameText = document.createTextNode(message.sender);
+        var usernameText = document.createTextNode(message.sender+' '+ message.sentAt);
         usernameElement.appendChild(usernameText);
         messageElement.appendChild(usernameElement);
+
     }else{
         messageElement.classList.add('event-message');
         message.content = '지원하지 않는 형식의 메세지가 수신되었습니다.';
@@ -121,6 +125,7 @@ function onMessageReceived(payload) {
     messageArea.appendChild(messageElement);
     messageArea.scrollTop = messageArea.scrollHeight;
 }
+
 
 //  사용자 프로필의 배경색을 자동으로 구함 
 function getAvatarColor(messageSender) {

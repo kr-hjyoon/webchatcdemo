@@ -11,6 +11,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import javax.websocket.Session;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Created by user on 2018-10-11.
@@ -37,8 +40,10 @@ public class WebSocketEventListener {
 			chatMessage.setType(ChatMessage.MessageType.LEAVE);
 			chatMessage.setSender(username);
 
-			messageTemplate.convertAndSend("/topic/public", chatMessage);
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			chatMessage.setSentAt(df.format(new Date()));
 
+			messageTemplate.convertAndSend("/topic/public", chatMessage);
 		}
 	}
 
